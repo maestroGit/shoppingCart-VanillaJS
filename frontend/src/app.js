@@ -7,13 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 const productsContent = document.getElementById("contenedor-productos");
-console.log(productsContent);
+//console.log(productsContent);
 
 const getData = async () => {
   try {
     const res = await fetch("../data/data.json");
     const data = await res.json();
-    console.log(data);
+    //console.log(data);
     showData(data);
     detectButtons(data);
   } catch (error) {
@@ -28,7 +28,7 @@ const showData = async (data) => {
   const fragment = document.createDocumentFragment();
   
   data.forEach((item) => {
-    console.log(item);
+    //console.log(item);
     templete.querySelector('img').setAttribute('src', item.thumbnailUrl);
     templete.querySelector('h5').textContent = item.title;
     templete.querySelector('p span').textContent = item.precio;
@@ -64,17 +64,49 @@ const detectButtons = (data) => {
             // Tenemos q almacenar el producto en carrito 
             // Si exite la propiedad id incrementamos el atributo cantidad q creamos
             producto.cantidad = 1;
+            //hasOwnProperty() method returns a boolean indicating whether the obj has the specified property as its own property
             if (carrito.hasOwnProperty(producto.id)){
                 //console.log('existe');
-                producto.cantidad ++
+                producto.cantidad = carrito[producto.id].cantidad + 1
+                console.log('acumala '+producto.cantidad);
             }
             // si no existe lo añadimos al carrito
             carrito[producto.id] = {...producto}; // Hacemos un copia del ojt producto
             console.log(carrito);
-
+            showShoppingCart(data);
         })
     })
-    
 }
 
+const tableCart = document.getElementById('table-cart');
+
+// Pinta  el carrito de compra con las compras
+const showShoppingCart = () => {
+  //Limpiamos tableCart para q no acumule
+  tableCart.innerHTML = '';
+
+  // Capturamos template q corresponde id="template-carrito"
+  const template = document.getElementById('template-carrito').content;
+  // Los cambios realizados en el fragmento no afectan al documento (incluso en el reflujo) ni generan ningún impacto en el rendimiento cuando se realizan cambios.
+  const fragment = document.createDocumentFragment();
+  // Añadimos en id='table-cart'
+  // transformamos obj en array Object.values() method returns an array of a given object's own enumerable property values
+  const arrayCarrito = Object.values(carrito);
+  console.log(arrayCarrito);
+  arrayCarrito.forEach(item => {
+    console.log(item);
+    template.querySelector('th').textContent = item.id;
+    template.querySelectorAll('td')[0].textContent = item.title;
+    template.querySelectorAll('td')[1].textContent = item.cantidad;
+    template.querySelector('span').textContent =(item.cantidad)*(item.precio)
+
+    clone = template.cloneNode(true);
+    // Fragment almacena el contenido hasta q lo rendericemos todo junto después de recorrer todo el data con el ciclo forEach
+    fragment.appendChild(clone);
+  })
+  tableCart.appendChild(fragment);
+}
+
+
+// !!! pendiente ordenar constantes en la parte superior
 
